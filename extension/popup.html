@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AttendX</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+
+  <div id="screen-login" class="screen active">
+    <div class="brand">
+      <div class="brand-icon">⏱</div>
+      <h1>AttendX</h1>
+      <p class="brand-sub">Attendance Manager</p>
+    </div>
+    <div class="form-card">
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <div class="field">
+        <label>Email or Employee ID</label>
+        <input type="text" id="login-id" placeholder="ADMIN001" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Password" />
+      </div>
+      <button class="btn-primary" id="btn-login">Sign In</button>
+    </div>
+    <div style="text-align: center; margin-top: 16px;">
+      <p style="color: var(--text2); font-size: 12px; margin-bottom: 8px;">New company?</p>
+      <button class="btn-signup" id="btn-to-signup">Create Company</button>
+    </div>
+  </div>
+
+  <div id="screen-signup" class="screen">
+    <div class="brand">
+      <div class="brand-icon">✨</div>
+      <h1>Create Company</h1>
+      <p class="brand-sub">Set up your workspace</p>
+    </div>
+    <div class="form-card">
+      <div id="signup-error" class="alert alert-error hidden"></div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Company Name</label>
+          <input type="text" id="signup-company-name" placeholder="ABC Corporation" />
+        </div>
+        <div class="field">
+          <label>Company Email</label>
+          <input type="email" id="signup-company-email" placeholder="admin@abc.com" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Owner Name</label>
+          <input type="text" id="signup-owner-name" placeholder="John Doe" />
+        </div>
+        <div class="field">
+          <label>Owner ID</label>
+          <input type="text" id="signup-owner-id" placeholder="OWNER001" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Owner Email</label>
+          <input type="email" id="signup-owner-email" placeholder="john@abc.com" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Create a password" />
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-signup" style="width: 100%;">Create & Login</button>
+    </div>
+    <div style="text-align: center; margin-top: 16px;">
+      <button class="btn-back" id="btn-to-login">Back to Login</button>
+    </div>
+  </div>
+
+  <div id="screen-employee" class="screen">
+    <div class="topbar">
+      <div class="topbar-info">
+        <span class="topbar-name" id="emp-name">Employee</span>
+        <span class="topbar-role">Employee</span>
+      </div>
+      <button class="btn-icon" id="emp-logout">⏏</button>
+    </div>
+    <div class="date-display">
+      <div class="date-day" id="today-day">—</div>
+      <div class="date-full" id="today-date">—</div>
+    </div>
+    <div class="status-card" id="status-card">
+      <div class="status-dot" id="status-dot"></div>
+      <div class="status-label" id="status-label">Loading...</div>
+      <div class="status-time" id="status-time">—</div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn-checkin" id="btn-checkin">
+        <span>▶ Check In</span>
+      </button>
+      <button class="btn-checkout" id="btn-checkout" disabled>
+        <span>■ Check Out</span>
+      </button>
+    </div>
+    <div class="work-hours-box">
+      <div class="wh-label">Work Hours</div>
+      <div class="wh-value" id="work-hours">0h 0m</div>
+    </div>
+    <div class="section-title">This Week</div>
+    <div class="week-grid" id="week-grid"></div>
+
+    <!-- LEAVE TAB FOR EMPLOYEE -->
+    <div id="leave-tab-content">
+      <div class="emp-form-card">
+        <div class="emp-form-title">📝 Apply for Leave</div>
+        <div id="leave-form-msg" class="alert hidden"></div>
+        <div class="form-row">
+          <div class="field">
+            <label>Leave Type</label>
+            <select id="leave-type" class="filter-input" style="width:100%;">
+              <option value="">Select type</option>
+              <option value="sick">Sick Leave</option>
+              <option value="casual">Casual Leave</option>
+              <option value="earned">Earned Leave</option>
+              <option value="unpaid">Unpaid Leave</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Start Date</label>
+            <input type="date" id="leave-start-date" class="filter-input" />
+          </div>
+          <div class="field">
+            <label>End Date</label>
+            <input type="date" id="leave-end-date" class="filter-input" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Reason</label>
+          <textarea id="leave-reason" placeholder="Reason for leave..."
+            style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;color:var(--text);background:var(--bg3);min-height:60px;"></textarea>
+        </div>
+        <button class="btn-primary" id="btn-apply-leave" style="width: 100%; margin-top: 8px;">Apply for Leave</button>
+      </div>
+
+      <div class="section-title">My Leave Requests</div>
+      <div id="employee-leave-list"></div>
+    </div>
+  </div>
+
+  <div id="screen-admin" class="screen">
+    <div class="topbar">
+      <div class="topbar-info">
+        <span class="topbar-name" id="admin-name">Admin</span>
+        <span class="topbar-role admin-badge">Admin</span>
+      </div>
+      <button class="btn-icon" id="admin-logout">⏏</button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" id="tab-attendance">📋 Attendance</button>
+      <button class="tab-btn" id="tab-employees">👥 Employees</button>
+      <button class="tab-btn" id="tab-leave">📅 Leave</button>
+    </div>
+
+    <div id="tab-content-attendance">
+      <div class="filter-row">
+        <input type="date" id="filter-date" class="filter-input" />
+        <input type="text" id="filter-search" class="filter-input" placeholder="Search..." />
+      </div>
+
+      <!-- Download Attendance Section -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px;">📥 Download Attendance</div>
+        
+        <!-- Download Type Selector -->
+        <div class="field" style="margin-bottom:12px;">
+          <label style="font-size:10px;color:var(--text2);">Download Type</label>
+          <select id="download-type" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;outline:none;">
+            <option value="">Select type</option>
+            <option value="day">Single Day</option>
+            <option value="range">Custom Range</option>
+          </select>
+        </div>
+
+        <!-- Single Day Date Input (hidden by default) -->
+        <div id="date-input-day" class="field" style="display:none;margin-bottom:12px;">
+          <label style="font-size:10px;color:var(--text2);">Select Date</label>
+          <input type="date" id="download-date-day" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;outline:none;" />
+        </div>
+
+        <!-- Custom Range Inputs (hidden by default) -->
+        <div id="date-input-range" style="display:none;margin-bottom:12px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="field">
+              <label style="font-size:10px;color:var(--text2);">From Date</label>
+              <input type="date" id="download-date-from" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;outline:none;" />
+            </div>
+            <div class="field">
+              <label style="font-size:10px;color:var(--text2);">To Date</label>
+              <input type="date" id="download-date-to" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;outline:none;" />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btn-download-attendance" style="width:100%;padding:10px;font-size:12px;">Download</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="stat-present">0</div>
+          <div class="stat-lbl">Present</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-absent">0</div>
+          <div class="stat-lbl">Absent</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-late">0</div>
+          <div class="stat-lbl">Late</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-total">0</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="emp-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Hours</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-content-employees" class="hidden">
+      <div class="emp-form-card">
+        <div class="emp-form-title">➕ Add New Employee</div>
+        <div id="emp-form-msg" class="alert hidden"></div>
+        <div class="form-row">
+          <div class="field">
+            <label>Employee ID</label>
+            <input type="text" id="f-empid" placeholder="EMP005" />
+          </div>
+          <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="f-name" placeholder="John Doe" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="f-email" placeholder="john@company.com" />
+          </div>
+          <div class="field">
+            <label>Department</label>
+            <input type="text" id="f-dept" placeholder="Engineering" />
+          </div>
+        </div>
+        <div class="field">
+  <label>Role</label>
+  <select id="f-role" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);">
+    <option value="employee">Employee</option>
+    <option value="hr">HR / Admin</option>
+  </select>
+</div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="f-pass" placeholder="Create password" />
+        </div>
+        <button class="btn-primary" id="btn-save-emp" style="width: 100%; margin-top: 8px;">Save Employee</button>
+      </div>
+
+      <div class="section-title" style="margin-top: 14px;">All Employees</div>
+      <div id="emp-list"></div>
+    </div>
+
+    <!-- LEAVE REQUESTS TAB FOR ADMIN -->
+    <div id="tab-content-leave" class="hidden">
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="stat-leave-pending">0</div>
+          <div class="stat-lbl">Pending</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-leave-approved">0</div>
+          <div class="stat-lbl">Approved</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-leave-rejected">0</div>
+          <div class="stat-lbl">Rejected</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-leave-total">0</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <select id="leave-filter-status" class="filter-input" style="width:100%;">
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="emp-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Type</th>
+              <th>Dates</th>
+              <th>Days</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="leave-requests-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Logout Confirmation Modal -->
+  <div id="logout-modal" class="logout-modal hidden">
+    <div class="logout-modal-overlay"></div>
+    <div class="logout-modal-content">
+      <div class="logout-modal-header">
+        <div class="logout-modal-icon">⚠️</div>
+        <div class="logout-modal-title">LOGOUT WARNING</div>
+      </div>
+      <div class="logout-modal-body">
+        <p class="logout-modal-text">You are currently <strong>checked in</strong>.</p>
+        <p class="logout-modal-text">You will be <strong>automatically checked out</strong> when you logout.</p>
+        <p class="logout-modal-subtitle">Continue logout?</p>
+      </div>
+      <div class="logout-modal-footer">
+        <button class="logout-modal-btn logout-modal-btn-cancel" id="logout-modal-cancel">Cancel</button>
+        <button class="logout-modal-btn logout-modal-btn-confirm" id="logout-modal-confirm">Logout & Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

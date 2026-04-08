@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "AttendX - Attendance Manager",
+  "version": "2.0.0",
+  "description": "Multi-tenant attendance tracking with check-in/check-out",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "http://localhost:5000/*",
+    "http://127.0.0.1:5000/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AttendX"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
