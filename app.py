@@ -76,8 +76,8 @@ if __name__ == '__main__':
     # NOTE: init_db() is commented out for AWS deployment
     # Database tables will be created on first API call via db.create_all()
     # Uncomment below if running locally and need to reset DB
-    # with app.app_context():
-    #     init_db(app)
+    with app.app_context():
+        init_db(app)
     
     app.run(
         host='0.0.0.0',
