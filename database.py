@@ -200,66 +200,81 @@ class LeaveRequest(db.Model):
         return data
 
 def init_db(app):
-    """Create tables and seed a default company with sample data"""
+    """
+    FAST: Only create tables on startup (no bcrypt hashing).
+    Seed demo data on first API request via seed_demo_data().
+    """
     with app.app_context():
         db.create_all()
+        # That's it! Tables created, app is ready instantly ✅
 
-        # Create default company if not exists
-        if Company.query.count() == 0:
-            company = Company(
-                company_id='COMP001',
-                name='Demo Company',
-                email='admin@demo.com',
-                subscription_plan='free'
-            )
-            db.session.add(company)
-            db.session.flush()
 
-            # Create default owner
-            owner = Employee(
+def seed_demo_data(app):
+    """
+    Seed demo data on first request (only if needed).
+    This is called lazily by @app.before_request, not on startup.
+    """
+    with app.app_context():
+        # Only seed if company doesn't exist
+        if Company.query.count() > 0:
+            return  # Already seeded, skip
+        
+        print("📊 Seeding demo data on first request...")
+        
+        company = Company(
+            company_id='COMP001',
+            name='Demo Company',
+            email='admin@demo.com',
+            subscription_plan='free'
+        )
+        db.session.add(company)
+        db.session.flush()
+
+        # Create default owner
+        owner = Employee(
+            company_id=company.id,
+            employee_id='OWNER001',
+            name='Company Owner',
+            email='owner@demo.com',
+            department='Management',
+            role='owner'
+        )
+        owner.set_password('Owner@123')
+        db.session.add(owner)
+
+        # Create default admin
+        admin = Employee(
+            company_id=company.id,
+            employee_id='ADMIN001',
+            name='Office Admin',
+            email='admin@demo.com',
+            department='Management',
+            role='admin'
+        )
+        admin.set_password('Admin@123')
+        db.session.add(admin)
+
+        # Create sample employees
+        sample_employees = [
+            ('EMP001', 'Rahul Sharma', 'rahul@demo.com', 'Engineering'),
+            ('EMP002', 'Priya Singh', 'priya@demo.com', 'Design'),
+            ('EMP003', 'Amit Kumar', 'amit@demo.com', 'Marketing'),
+        ]
+        for emp_id, name, email, dept in sample_employees:
+            emp = Employee(
                 company_id=company.id,
-                employee_id='OWNER001',
-                name='Company Owner',
-                email='owner@demo.com',
-                department='Management',
-                role='owner'
+                employee_id=emp_id,
+                name=name,
+                email=email,
+                department=dept,
+                role='employee'
             )
-            owner.set_password('Owner@123')
-            db.session.add(owner)
+            emp.set_password('Emp@123')
+            db.session.add(emp)
 
-            # Create default admin
-            admin = Employee(
-                company_id=company.id,
-                employee_id='ADMIN001',
-                name='Office Admin',
-                email='admin@demo.com',
-                department='Management',
-                role='admin'
-            )
-            admin.set_password('Admin@123')
-            db.session.add(admin)
-
-            # Create sample employees
-            sample_employees = [
-                ('EMP001', 'Rahul Sharma', 'rahul@demo.com', 'Engineering'),
-                ('EMP002', 'Priya Singh', 'priya@demo.com', 'Design'),
-                ('EMP003', 'Amit Kumar', 'amit@demo.com', 'Marketing'),
-            ]
-            for emp_id, name, email, dept in sample_employees:
-                emp = Employee(
-                    company_id=company.id,
-                    employee_id=emp_id,
-                    name=name,
-                    email=email,
-                    department=dept,
-                    role='employee'
-                )
-                emp.set_password('Emp@123')
-                db.session.add(emp)
-
-            db.session.commit()
-            print("✅ Database initialized!")
-            print("   Company: COMP001 / Demo Company")
-            print("   Owner: OWNER001 / Owner@123")
-            print("   Admin: ADMIN001 / Admin@123")
-            print("   Employees: EMP001, EMP002, EMP003 / Emp@123")
+        db.session.commit()
+        print("✅ Demo data seeded!")
+        print("   Company: COMP001 / Demo Company")
+        print("   Owner: OWNER001 / Owner@123")
+        print("   Admin: ADMIN001 / Admin@123")
+        print("   Employees: EMP001, EMP002, EMP003 / Emp@123")
