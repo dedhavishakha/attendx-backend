@@ -215,9 +215,13 @@ def seed_demo_data(app):
     This is called lazily by @app.before_request, not on startup.
     """
     with app.app_context():
-        # Only seed if company doesn't exist
-        if Company.query.count() > 0:
-            return  # Already seeded, skip
+        try:
+            # Only seed if company doesn't exist
+            if Company.query.count() > 0:
+                return  # Already seeded, skip
+        except Exception:
+            # If query fails, assume already seeded
+            return
         
         print("📊 Seeding demo data on first request...")
         
